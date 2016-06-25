@@ -1,11 +1,11 @@
 //init stuff
-var deep = require('deep-diff');
+//var deep = require('deep-diff');
 var genetic = Genetic.create();
 
 var myReport = [];
 
 function pr(x) {
-    return JSON.stringify(x);
+    console.log( JSON.stringify(x));
 }
 
 var root = [-
@@ -137,35 +137,35 @@ function allKeys(){
 //Tree Comparer
 var typed = [
     //Functional
-	{ input: [ ['object', 'Array'], 'Array'], func: map, output: 'Array', arity:2  },
-    { input: ['object','string'], func: dot, output: 'object' , arity:2  },
-    { input: ['function', 'Array'], func: forEach, output: 'Array', arity:2   },
-	{ input: ['function', 'Array'], func: reduce, output: 'Object', arity:2   },
-	{ input: ['function', 'Array'], func: filter, output: 'Array', arity:2   },
+	{ input: [ ['object', 'Array'], 'Array'], func: map, T: ['Any'],  output: 'Array', arity:2  },
+    { input: ['object','string'], func: dot, T: ['Any'],output: 'object' , arity:2  },
+    { input: ['function', 'Array'], func: forEach, T: ['Any'], output: 'Array', arity:2   },
+	//{ input: ['function', 'Array'], func: reduce, output: 'Object', arity:2   },
+	{ input: ['function', 'Array'], func: filter, T: ['Any'], output: 'Array', arity:2   },
 	//generation
-	{ input: ['object'], func:identity , output: 'object', arity:1 },
-	{ input:[] , func:stringStore, output:'string', arity:0 },
-	{ input:[] , func:numberStore, output:'Number' , arity: 0},
+	{ input: ['object'], func:identity , T: [], output: 'object', arity:1 },
+	{ input:[] , func:stringStore, T: [], output:'string', arity:0 },
+	{ input:[] , func:numberStore, T: [], output:'Number' , arity: 0},
 	//MATH
-	{ input: ['object','object'], func: equals, output: 'bool', arity:2  },
-	//{ input: ['object','object'], func: If, output: 'bool', arity:2  },
+	//{ input: ['object','object'], func: equals, output: 'bool', arity:2  },
+	//**{ input: ['object','object'], func: If, output: 'bool', arity:2  },
 
-    { input: ['Number','Number'], func: add, output: 'Number', arity:2  },
-    { input: ['Number','Number'], func: divide, output: 'Number', arity:2  },
-    { input: ['Number','Number'], func: multiply, output: 'Number', arity:2  },
+    { input: ['Number','Number'], func: add, T: [], output: 'Number', arity:2  },
+    { input: ['Number','Number'], func: divide, T: [], output: 'Number', arity:2  },
+    { input: ['Number','Number'], func: multiply, T: [], output: 'Number', arity:2  },
 ]
 //Object -> Nary tree
 
 function last(xs){ return xs[xs.length - 1]; };
 
-function typeFilter(x, type){return  (x['arity'] > 0) && (last(x['input']) === type);  } ;
+function typeFilter(x, type){return (x['arity'] > 0) && (last(x['input']) === type || last(x['input']) === 'Any') ;  } ;
 
 function randomX(xs){ return xs[Math.floor(Math.random() * xs.length)]; };
 
 function funcOfSignature(inputType){return randomX(typed.filter(x => typeFilter(x, inputType))); };
 
 //OMG BAD CODE!!!!! lolz yo.
-//genes -> array of functions.
+//genes -> array of functions.  
 genetic.seed = function(){
   	console.log('hello');
     var c = [];
@@ -173,12 +173,13 @@ genetic.seed = function(){
 	var arity = 0;
     var inputType = 'Array';		// initial structure type. shud be user input or autodetect
     //construct tree of types of functions with compatible types. 
-    for (i=0;i< 6;++i) {
+    for (i=0; i< 4;++i) {
 		//get a function with valid input signature
 		var validFunction = funcOfSignature(inputType);
 		arity = validFunction.arity;
 		inputType = validFunction.output;  
 		c.push(validFunction);
+		pr(c);
 		while(arity > 1){
 			arity = arity - 1;
 			c.concat(GenerateSubFuncs(validFunction, arity, inputType));
@@ -193,6 +194,9 @@ genetic.seed();
 function GenerateSubFuncs(func, arityRemaining, inputType){
 	var nextInput = func.input[arityRemaining]
 	//if(nextInput === 'function'){
+	if(func.T !== [] ){
+		pr(func.T);
+	}
 	if(typeof (nextInput) === Array){
 		//push subfunctions to array
 		return funcOfSignature(func.subPut);
@@ -266,7 +270,7 @@ genetic.crossover = function(mother, father){
     // two-point crossover
 	function grouper(entity){
 		for(var i = 0; entity.length; i++){
-			if(arity )
+			//if(arity )
 
 		}
 	}

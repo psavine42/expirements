@@ -1,5 +1,9 @@
 
-    var MONAD, add, apply, at, coalesce, compose, curry, curryPick, diffDays, diffTime, diffToNow, diffUTC, divide, dot, filter, flatMapFuncs, flipN, fmap, forKeys, forOwn, groupMap, identity, map, mapFuncs, multiFilter, multiply, normalizeBy, putIfNull, spDate, unzipMap, utcDate;
+    var MONAD, add, apply, at, coalesce, compose, curry, curryPick, diffDays;
+    var diffTime, diffToNow, diffUTC, divide, dot, filter, flatMapFuncs, flipN, fmap;
+    var forKeys, forOwn, groupMap, identity, map, mapFuncs, multiFilter, multiply, normalizeBy;
+    var putIfNull, spDate, unzipMap, utcDate ;
+
     identity = function(x) {
       return x;
     };
@@ -19,6 +23,7 @@
         }
       };
     };
+  
     forKeys = curry(function(f, obj) {
       var i, k, v;
       i = 0;
@@ -70,13 +75,13 @@
         return _.at(obj, prop);
       };
     };
-    // map = function(f) {
-    //   return function(arr) {
-    //     return arr.map(function(x) {
-    //       return f(x);
-    //     });
-    //   };
-    // };
+    forEach = function(arr) {
+      return function(f) {
+        return arr.forEach(function(x) {
+          return f(x);
+        });
+      };
+    };
     map = function(arr) {
       return function(f) {
         return arr.map(function(x) {
