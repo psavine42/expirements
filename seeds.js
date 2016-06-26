@@ -2,7 +2,8 @@
     var MONAD, add, apply, at, coalesce, compose, curry, curryPick, diffDays;
     var diffTime, diffToNow, diffUTC, divide, dot, filter, flatMapFuncs, flipN, fmap;
     var forKeys, forOwn, groupMap, identity, map, mapFuncs, multiFilter, multiply, normalizeBy;
-    var putIfNull, spDate, unzipMap, utcDate ;
+    var putIfNull, spDate, unzipMap, utcDate , equals;
+    var slice = [].slice;
 
     identity = function(x) {
       return x;
@@ -28,7 +29,7 @@
       var i, k, v;
       i = 0;
       for (k in obj) {
-        if (!hasProp.call(obj, k)) continue;
+        if (!hasOwnProperty.call(obj, k)) continue;
         v = obj[k];
         obj = f.apply(null, [k, v, i++]);
       }
@@ -79,6 +80,18 @@
       return function(f) {
         return arr.forEach(function(x) {
           return f(x);
+        });
+      };
+    };
+    equals = function(a){
+      return function(b){
+        return a === b;
+      };
+    };
+    reduce = function(arr) {
+      return function(f) {
+        return arr.reduce(function(a,b) {
+          return f(a,b);
         });
       };
     };

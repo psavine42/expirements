@@ -2,108 +2,22 @@
 //var deep = require('deep-diff');
 var genetic = Genetic.create();
 
-var myReport = [];
+var mlog = [];
+function log(x){
+	mlog.push(x);
+}
+
+
+function prS(x){return console.log(x.toString()) ; };
 
 function pr(x) {
+	//forKeys(prS, x);
+	//if(x['func']){console.log(x['func'].toString())}
+	
     console.log( JSON.stringify(x));
 }
 
-var root = [-
-	{
-		"id": "0001",
-		"type": "donut",
-		"name": "Cake",
-		"ppu": 0.55,
-		"batters":
-			{
-				"batter":
-					[
-						{ "id": "1001", "type": "Regular" },
-						{ "id": "1002", "type": "Chocolate" },
-						{ "id": "1003", "type": "Blueberry" },
-						{ "id": "1004", "type": "Devil's Food" }
-					]
-			},
-		"topping":
-			[
-				{ "id": "5001", "type": "None" },
-				{ "id": "5002", "type": "Glazed" },
-				{ "id": "5005", "type": "Sugar" },
-				{ "id": "5007", "type": "Powdered Sugar" },
-				{ "id": "5006", "type": "Chocolate with Sprinkles" },
-				{ "id": "5003", "type": "Chocolate" },
-				{ "id": "5004", "type": "Maple" }
-			]
-	},
-	{
-		"id": "0002",
-		"type": "donut",
-		"name": "Raised",
-		"ppu": 0.55,
-		"batters":
-			{
-				"batter":
-					[
-						{ "id": "1001", "type": "Regular" }
-					]
-			},
-		"topping":
-			[
-				{ "id": "5001", "type": "None" },
-				{ "id": "5002", "type": "Glazed" },
-				{ "id": "5005", "type": "Sugar" },
-				{ "id": "5003", "type": "Chocolate" },
-				{ "id": "5004", "type": "Maple" }
-			]
-	},
-	{
-		"id": "0003",
-		"type": "donut",
-		"name": "Old Fashioned",
-		"ppu": 0.55,
-		"batters":
-			{
-				"batter":
-					[
-						{ "id": "1001", "type": "Regular" },
-						{ "id": "1002", "type": "Chocolate" }
-					]
-			},
-		"topping":
-			[
-				{ "id": "5001", "type": "None" },
-				{ "id": "5002", "type": "Glazed" },
-				{ "id": "5003", "type": "Chocolate" },
-				{ "id": "5004", "type": "Maple" }
-			]
-	}
-]
-
-var target = {
-
-};
-
-
-function makeString(){
-
-}
-
-//#end function
-
-//each function f(x)()
-// compose ( map(f(g(struct)))  )
-
-var stringStore = (function(){
-	allKeys().length
-});
-
-var numberStore = (function(){
-	return Math.random();
-});
-
-
-
-//i is index of iteration
+//#end function 
 function resolveFitness(obj , i ){
     // TODO some function of difference between data structure
     var diff = deep(obj, target);
@@ -111,104 +25,145 @@ function resolveFitness(obj , i ){
 		return diff.length;  // maybe complex distance ? 
 	}else{
 		return 0;
-	}
-} 
-
+	};
+};
 
 genetic.optimize = Genetic.Optimize.Maximize;
 genetic.select1 = Genetic.Select1.Tournament2;
 genetic.select2 = Genetic.Select2.FittestRandom;
 
-function allKeys(){
-    return  _.chain(dataset).keysIn().uniq().value();
-}
-
-// { input: ['Array', 'function'], func: map, output: 'Array', arity:2  },
-//     { input: ['object','string'], func: dot, output: 'object' , arity:2  },
-//     { input: ['Array','function'], func: forEach, output: 'Array', arity:2   },
-// 	{ input: ['Array','function'], func: reduce, output: 'Object', arity:2   },
-//fitness function
-//My types
-//object
-//Number
-//Array
-//string
-//bool
-//Tree Comparer
-var typed = [
-    //Functional
-	{ input: [ ['object', 'Array'], 'Array'], func: map, T: ['Any'],  output: 'Array', arity:2  },
-    { input: ['object','string'], func: dot, T: ['Any'],output: 'object' , arity:2  },
-    { input: ['function', 'Array'], func: forEach, T: ['Any'], output: 'Array', arity:2   },
-	//{ input: ['function', 'Array'], func: reduce, output: 'Object', arity:2   },
-	{ input: ['function', 'Array'], func: filter, T: ['Any'], output: 'Array', arity:2   },
-	//generation
-	{ input: ['object'], func:identity , T: [], output: 'object', arity:1 },
-	{ input:[] , func:stringStore, T: [], output:'string', arity:0 },
-	{ input:[] , func:numberStore, T: [], output:'Number' , arity: 0},
-	//MATH
-	//{ input: ['object','object'], func: equals, output: 'bool', arity:2  },
-	//**{ input: ['object','object'], func: If, output: 'bool', arity:2  },
-
-    { input: ['Number','Number'], func: add, T: [], output: 'Number', arity:2  },
-    { input: ['Number','Number'], func: divide, T: [], output: 'Number', arity:2  },
-    { input: ['Number','Number'], func: multiply, T: [], output: 'Number', arity:2  },
-]
-//Object -> Nary tree
-
 function last(xs){ return xs[xs.length - 1]; };
-
-function typeFilter(x, type){return (x['arity'] > 0) && (last(x['input']) === type || last(x['input']) === 'Any') ;  } ;
-
-function randomX(xs){ return xs[Math.floor(Math.random() * xs.length)]; };
-
-function funcOfSignature(inputType){return randomX(typed.filter(x => typeFilter(x, inputType))); };
 
 //OMG BAD CODE!!!!! lolz yo.
 //genes -> array of functions.  
 genetic.seed = function(){
-  	console.log('hello');
     var c = [];
 	var l = typed.length;
 	var arity = 0;
-    var inputType = 'Array';		// initial structure type. shud be user input or autodetect
-    //construct tree of types of functions with compatible types. 
+    var inputType = 'Array';				// initial structure type. shud be user input or autodetect
     for (i=0; i< 4;++i) {
-		//get a function with valid input signature
-		var validFunction = funcOfSignature(inputType);
-		arity = validFunction.arity;
-		inputType = validFunction.output;  
-		c.push(validFunction);
-		pr(c);
-		while(arity > 1){
-			arity = arity - 1;
-			c.concat(GenerateSubFuncs(validFunction, arity, inputType));
-			pr(c);
-		}
+							//construct tree of types of functions with compatible types. 
+		var validFunction = funcOfSignature(inputType); //get a function with valid input signature
+		report(validFunction, validFunction.arity, inputType);
+		c = c.concat(reduceArity(validFunction ));
 	}
-    return c;
+	pr(c.map(x=> x.n));
+    return c; 
 };
 
-genetic.seed();
 
-function GenerateSubFuncs(func, arityRemaining, inputType){
-	var nextInput = func.input[arityRemaining]
-	//if(nextInput === 'function'){
-	if(func.T !== [] ){
-		pr(func.T);
-	}
-	if(typeof (nextInput) === Array){
-		//push subfunctions to array
-		return funcOfSignature(func.subPut);
-	}else{
-		return funcOfSignature(nextInput);
-	}
+// genetic.seed = function(){
+//     var c = [];
+// 	var l = typed.length;
+// 	var arity = 0;
+//     var inputType = 'Array';				// initial structure type. shud be user input or autodetect
+//     for (i=0; i< 4;++i) {					//construct tree of types of functions with compatible types. 
+// 		var validFunction = funcOfSignature(inputType); //get a function with valid input signature
+// 		c = c.concat(reduceArity(validFunction, inputType ));
+// 	}
+// 	pr(c.map(x=> x.n));
+//     return c; 
+// };
+//take valid function
+//F: if arity > 1 
+	//find valid function to fill slot
+	//new return funcs, and newType
+
+genetic.seed(); 
+ 
+function report(x, arity, inp){
+	pr('input : ' + x.input +', search subfunc w/input : ' + arity + ' - ' + inp);
 }
+
+
+function reduceArity(validFunction){
+	var c =  [ validFunction ];
+	var inputType = [];
+	if(validFunction.output === 'function'){
+		inputType = validFunction.T;
+	}else{
+		inputType = validFunction.output;
+	}
+	var arity = validFunction.arity;			
+	pr('func : ' + validFunction.n);
+	
+	while(arity > 0){
+		report(validFunction, arity, inputType);
+		var subfunc = funcOfSignature(inputType, arity);
+		pr(subfunc);
+		if(subfunc.input.length === 0 ){
+			c.push(subfunc());
+		}else{
+			c.push(subfunc);
+		}
+		// if(subfunc.arity > 1){
+		// 	c.concat(reduceArity(subfunc));
+		// }
+		arity --;
+		report(subfunc, arity, subfunc.output )
+	};
+	pr('---------------------------');
+	return c;
+};
+
+function funcOfSignature(inputType, arity){
+	var res ;
+	// if(inputType.indexOf('Any') !== -1){  
+	// 	res = _.sample(typed.filter(x => x.input.length > 0)); 
+	// }else{
+	// 	res = _.sample(typed.filter(x => typeFilter(x, inputType)));
+	// }
+
+	return _.sample(typed.filter(x => typeFilter(x, inputType)));
+ };
+ function typeFilter2(x, type){
+	return (last(x['input']) === type); 
+} ; 
+
+function typeFilter(x, type){
+	return (_.difference(_.takeRight((x['input']) , type.length -1 ), type).length === 0); 
+} ;
+// function reduceArity(validFunction){
+// 	var c =  [];
+// 	arity = validFunction.arity;			
+// 	inputType = validFunction.output;  //new input type 
+// 	c.push(validFunction);
+// 	pr('func : ' + validFunction.n);
+// 	while(arity > 0){
+// 		report(validFunction, arity, inputType);			//reoort
+// 		var subfunc = funcOfSignature(arity);	
+// 														//recreate input array
+// 		//var subfunc = GenerateSubFunc(validFunction, arity, inputType); //pick func with signature of current input
+// 															//subfunc can eliminate 1 or more args
+// 		c.concat(reduceArity(subfunc));
+// 		arity --;	
+// 		//pr(c.map(x=> x.n));
+// 	};
+// 	pr('---------------------------');
+// 	return c;
+// };
+
+function GenerateSubFunc(func, arityRemaining, inputType){
+	var nextInput = func.input[arityRemaining];	
+	if(func.T.length > 0 ){					//if the func has a T value, it is new argument
+		pr('T : ' +func.T);
+											//new input array 					
+		return funcOfSignature(func.T)
+	}else{
+		return funcOfSignature(nextInput); 
+	};
+};
+
+
+
+
+function randomX(xs){ 
+	return xs[Math.floor(Math.random() * xs.length)]; 
+};
 
 //metaFunc is a function//
 //chrmsm is an array of functions
 function popFunc(metaFunc, chrmsm){
-
 	//gene is a function!!
 	var resultFunc = {};
 	var gene = chrmsm.pop();
@@ -218,10 +173,9 @@ function popFunc(metaFunc, chrmsm){
 		return compose(metaFunc, gene)
 	}else if(metaFunc.arity === 0){
 		var exec = gene.func();
-
 	}
 	return gene;
-}
+};
 
 genetic.fitness = function(chrmsm){
     var fitness = 0;
@@ -230,8 +184,7 @@ genetic.fitness = function(chrmsm){
 	//var i = 0;
 	while(chrmsm.length > 0){
 		popFunc(chrmsm);
-		
-	}
+	};
 
     for(var i = 0; chrmsm.length; i++){
         var func = chrmsm[i].func;
